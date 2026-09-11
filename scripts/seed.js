@@ -8,7 +8,7 @@ const ServiceRequest = require('../models/ServiceRequest');
 const Rating = require('../models/Rating');
 const Complaint = require('../models/Complaint');
 
-async function seedDatabase() {
+async function seedDatabase({ autoClose = false } = {}) {
   console.log('🌱 Starting database seed script...');
 
   try {
@@ -24,10 +24,9 @@ async function seedDatabase() {
     ]);
 
     console.log('👤 Creating users (Admin, Workers, Customers)...');
-    const salt = await bcrypt.genSalt(10);
-    const adminPassword = await bcrypt.hash('Admin@123', salt);
-    const workerPassword = await bcrypt.hash('Worker@123', salt);
-    const customerPassword = await bcrypt.hash('Customer@123', salt);
+    const adminPassword = 'Admin@123';
+    const workerPassword = 'Worker@123';
+    const customerPassword = 'Customer@123';
 
     // 1. Admin
     const admin = await User.create({
@@ -290,12 +289,22 @@ async function seedDatabase() {
     console.log('   Rohit Kapoor: rohit.kapoor@gmail.com / Customer@123');
     console.log('===========================================================');
 
-    await closeDB();
-    process.exit(0);
+    if (autoClose) {
+      await closeDB();
+      process.exit(0);
+    }
+    return true;
   } catch (err) {
     console.error('❌ Seeding error:', err);
-    process.exit(1);
+    if (autoClose) {
+      process.exit(1);
+    }
+    throw err;
   }
 }
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase({ autoClose: true });
+}
+
+module.exports = { seedDatabase };

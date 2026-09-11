@@ -92,7 +92,6 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes for fast search and role lookup
-userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ skills: 1 });
 userSchema.index({ location: 1 });
