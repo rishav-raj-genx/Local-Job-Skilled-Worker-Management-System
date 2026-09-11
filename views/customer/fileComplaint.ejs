@@ -1,0 +1,50 @@
+<%- include('../partials/header', { title: 'File a Complaint - Skilled Worker Hub' }) %>
+
+<div style="max-width: 600px; margin: 2rem auto;">
+  <div class="card" style="box-shadow: var(--shadow-lg);">
+    <div class="card-header">
+      <div>
+        <h1 class="card-title" style="font-size: 1.4rem; color: var(--danger);">Report an Issue / File Complaint</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+          Job #<%= request._id.toString().slice(-6) %> with <%= request.worker ? request.worker.name : 'Worker' %>
+        </p>
+      </div>
+    </div>
+
+    <form action="/customer/requests/<%= request._id %>/complaint" method="POST">
+      <div class="form-group">
+        <label for="subject" class="form-label">Issue Subject *</label>
+        <input 
+          type="text" 
+          id="subject" 
+          name="subject" 
+          class="form-control" 
+          required 
+          placeholder="e.g. Worker did not arrive, Incomplete wiring, Unprofessional behavior"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="description" class="form-label">Detailed Description of Complaint *</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          class="form-control" 
+          rows="5" 
+          required 
+          placeholder="Please provide specifics of what happened, time of incident, and what resolution you are seeking..."
+        ></textarea>
+        <p class="form-hint">Our administration team monitors all complaints and will review the case.</p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="/customer/requests/<%= request._id %>" class="btn btn-outline" style="flex: 1;">Back</a>
+        <button type="submit" class="btn btn-danger" style="flex: 2;">
+          Submit Complaint to Admin
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

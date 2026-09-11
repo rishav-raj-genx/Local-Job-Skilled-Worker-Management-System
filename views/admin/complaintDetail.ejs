@@ -1,0 +1,116 @@
+<%- include('../partials/header', { title: `Complaint #${complaint._id.toString().slice(-6)} - Admin Review` }) %>
+
+<div style="max-width: 850px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/admin/complaints" class="btn btn-outline btn-sm">&larr; Back to Complaints Queue</a>
+    <%- include('../partials/statusBadge', { status: complaint.status }) %>
+  </div>
+
+  <!-- Complaint Overview Card -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-size: 1.35rem; color: var(--danger);">
+          Ticket #<%= complaint._id.toString().slice(-6) %>: <%= complaint.subject %>
+        </h2>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">
+          Reported on <%= new Date(complaint.createdAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %>
+        </span>
+      </div>
+    </div>
+
+    <div style="background: #fff5f5; border: 1px solid var(--danger-border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.85rem; text-transform: uppercase; color: #991b1b; margin-bottom: 0.5rem;">Customer Statement</h4>
+      <p style="font-size: 0.95rem; color: #7f1d1d; line-height: 1.6; white-space: pre-line;">
+        <%= complaint.description %>
+      </p>
+    </div>
+
+    <!-- Related Customer, Worker, Job Information -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+      <div>
+        <span style="font-size: 0.775rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.25rem;">
+          Customer Details
+        </span>
+        <% if (complaint.customer) { %>
+          <strong style="display: block; font-size: 1rem;"><%= complaint.customer.name %></strong>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">✉️ <%= complaint.customer.email %></span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">📞 <%= complaint.customer.phone || 'N/A' %></span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">📍 <%= complaint.customer.location %></span>
+        <% } else { %>
+          <span style="color: var(--text-muted);">Customer record unavailable</span>
+        <% } %>
+      </div>
+
+      <div>
+        <span style="font-size: 0.775rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.25rem;">
+          Involved Skilled Worker
+        </span>
+        <% if (complaint.worker) { %>
+          <strong style="display: block; font-size: 1rem;"><%= complaint.worker.name %></strong>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">✉️ <%= complaint.worker.email %></span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">📞 <%= complaint.worker.phone || 'N/A' %></span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">
+            Status: <%- include('../partials/statusBadge', { status: complaint.worker.verificationStatus }) %>
+          </span>
+        <% } else { %>
+          <span style="color: var(--text-muted);">Worker unassigned</span>
+        <% } %>
+      </div>
+
+      <div>
+        <span style="font-size: 0.775rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 0.25rem;">
+          Linked Service Job
+        </span>
+        <% if (complaint.job) { %>
+          <strong style="display: block; font-size: 1rem; color: var(--primary);"><%= complaint.job.service %></strong>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">
+            Job Status: <%- include('../partials/statusBadge', { status: complaint.job.status }) %>
+          </span>
+          <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">
+            Scheduled: <%= new Date(complaint.job.preferredDate).toLocaleDateString() %>
+          </span>
+        <% } else { %>
+          <span style="color: var(--text-muted);">No specific job attached</span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Resolution Form -->
+  <div class="card" style="box-shadow: var(--shadow-md);">
+    <h3 class="card-title" style="margin-bottom: 1rem; font-size: 1.15rem;">Admin Status & Resolution</h3>
+
+    <form action="/admin/complaints/<%= complaint._id %>/status" method="POST">
+      <div class="form-group">
+        <label for="status" class="form-label">Update Ticket Status *</label>
+        <select name="status" id="status" class="form-select" required>
+          <option value="Open" <%= complaint.status === 'Open' ? 'selected' : '' %>>Open (Pending investigation)</option>
+          <option value="Under Review" <%= complaint.status === 'Under Review' ? 'selected' : '' %>>Under Review (Contacting parties)</option>
+          <option value="Resolved" <%= complaint.status === 'Resolved' ? 'selected' : '' %>>Resolved (Action taken / settled)</option>
+          <option value="Closed" <%= complaint.status === 'Closed' ? 'selected' : '' %>>Closed (Archived)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="adminNotes" class="form-label">Administrative Resolution Notes / Findings</label>
+        <textarea 
+          name="adminNotes" 
+          id="adminNotes" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Record notes of communication with worker/customer, refunds issued, warnings, or resolution rationale..."
+        ><%= complaint.adminNotes || '' %></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+        <a href="/admin/complaints" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          Save Resolution Status
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

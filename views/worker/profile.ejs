@@ -1,0 +1,134 @@
+<%- include('../partials/header', { title: 'Manage Worker Profile - Skilled Worker Hub' }) %>
+
+<div style="max-width: 750px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Manage Worker Profile</h1>
+      <p class="page-subtitle">Keep your professional details, contact, and service areas updated</p>
+    </div>
+    <div>
+      <% if (worker.verificationStatus === 'Verified') { %>
+        <span class="badge badge-verified">✓ Verified</span>
+      <% } else { %>
+        <span class="badge badge-unverified">Verification: <%= worker.verificationStatus %></span>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card" style="box-shadow: var(--shadow-md);">
+    <form action="/worker/profile" method="POST">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name *</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-control" 
+            required 
+            value="<%= worker.name %>"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address (Read Only)</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-control" 
+            disabled 
+            value="<%= worker.email %>" 
+            style="background: #f1f5f9; cursor: not-allowed;"
+          >
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="phone" class="form-label">Contact Phone Number</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone" 
+            class="form-control" 
+            placeholder="+91 98765 43210" 
+            value="<%= worker.phone || '' %>"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="location" class="form-label">Primary City / Base Location *</label>
+          <input 
+            type="text" 
+            id="location" 
+            name="location" 
+            class="form-control" 
+            required 
+            value="<%= worker.location || '' %>"
+          >
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="serviceArea" class="form-label">Service Area Coverage</label>
+          <input 
+            type="text" 
+            id="serviceArea" 
+            name="serviceArea" 
+            class="form-control" 
+            placeholder="e.g. South Delhi, Noida Sector 1-50, Ghaziabad" 
+            value="<%= worker.serviceArea || '' %>"
+          >
+          <p class="form-hint">Neighborhoods and zones you are willing to travel to.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="experience" class="form-label">Years of Trade Experience</label>
+          <input 
+            type="number" 
+            id="experience" 
+            name="experience" 
+            class="form-control" 
+            min="0" 
+            value="<%= worker.experience || 1 %>"
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="hourlyRate" class="form-label">Standard Hourly Service Rate (₹)</label>
+        <input 
+          type="number" 
+          id="hourlyRate" 
+          name="hourlyRate" 
+          class="form-control" 
+          min="0" 
+          step="50" 
+          value="<%= worker.hourlyRate || 300 %>"
+        >
+        <p class="form-hint">Displayed on your profile as an estimated starting rate for customers.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="bio" class="form-label">Professional Bio & Experience Summary</label>
+        <textarea 
+          id="bio" 
+          name="bio" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Share your background, training, specializations, warranties offered, and customer service approach..."
+        ><%= worker.bio || '' %></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="/worker/dashboard" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          Save Profile Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

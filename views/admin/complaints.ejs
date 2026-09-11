@@ -1,0 +1,99 @@
+<%- include('../partials/header', { title: 'Complaint Management - Admin Hub' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Complaint Monitoring & Resolution</h1>
+    <p class="page-subtitle">Track customer-reported service disputes, investigate incidents, and update resolution states</p>
+  </div>
+  <a href="/admin/dashboard" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+</div>
+
+<!-- Status Filter Tabs -->
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+  <% const tabs = [
+    { id: 'all', label: 'All Complaints', count: counts.all },
+    { id: 'Open', label: 'Open', count: counts.open },
+    { id: 'Under Review', label: 'Under Review', count: counts.underReview },
+    { id: 'Resolved', label: 'Resolved', count: counts.resolved },
+    { id: 'Closed', label: 'Closed', count: counts.closed }
+  ]; %>
+
+  <% tabs.forEach(tab => { %>
+    <a 
+      href="/admin/complaints?status=<%= tab.id %>" 
+      class="btn <%= selectedStatus === tab.id ? 'btn-primary' : 'btn-outline' %> btn-sm"
+      style="border-radius: var(--radius-full);"
+    >
+      <%= tab.label %> (<%= tab.count %>)
+    </a>
+  <% }) %>
+</div>
+
+<!-- Complaints Table -->
+<div class="card">
+  <% if (complaints && complaints.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Customer</th>
+            <th>Worker</th>
+            <th>Service / Job</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% complaints.forEach(c => { %>
+            <tr>
+              <td>
+                <strong style="color: var(--primary);">#<%= c._id.toString().slice(-6) %></strong>
+              </td>
+              <td>
+                <strong><%= c.customer ? c.customer.name : 'Unknown Customer' %></strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);"><%= c.customer ? c.customer.email : '' %></div>
+              </td>
+              <td>
+                <strong><%= c.worker ? c.worker.name : 'Unassigned' %></strong>
+              </td>
+              <td>
+                <span style="font-size: 0.9rem; font-weight: 600;"><%= c.job ? c.job.service : 'General Service' %></span>
+                <% if (c.job) { %>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Status: <%= c.job.status %></div>
+                <% } %>
+              </td>
+              <td>
+                <strong style="display: block; font-size: 0.9rem;"><%= c.subject %></strong>
+                <span style="font-size: 0.775rem; color: var(--text-muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
+                  <%= c.description %>
+                </span>
+              </td>
+              <td>
+                <%- include('../partials/statusBadge', { status: c.status }) %>
+              </td>
+              <td>
+                <%= new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+              </td>
+              <td>
+                <a href="/admin/complaints/<%= c._id %>" class="btn btn-outline btn-sm">
+                  Investigate
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">✓</div>
+      <h3 class="empty-title">No Complaints Found</h3>
+      <p class="empty-desc">There are no complaints matching the "<%= selectedStatus %>" status filter.</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

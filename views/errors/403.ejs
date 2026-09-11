@@ -1,0 +1,28 @@
+<%- include('../partials/header', { title: '403 - Access Forbidden' }) %>
+
+<div style="max-width: 550px; margin: 4rem auto; text-align: center;">
+  <div class="card" style="padding: 3rem 2rem; box-shadow: var(--shadow-lg);">
+    <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem;">🔒</div>
+    <h1 style="font-size: 2rem; margin-bottom: 0.75rem;">Access Denied (403)</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6;">
+      <%= typeof message !== 'undefined' ? message : 'You do not have permission to access this protected area.' %>
+    </p>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+      <% if (currentUser) { %>
+        <% if (currentUser.role === 'admin') { %>
+          <a href="/admin/dashboard" class="btn btn-primary">Go to Admin Hub</a>
+        <% } else if (currentUser.role === 'worker') { %>
+          <a href="/worker/dashboard" class="btn btn-primary">Go to Worker Dashboard</a>
+        <% } else { %>
+          <a href="/customer/dashboard" class="btn btn-primary">Go to Customer Dashboard</a>
+        <% } %>
+      <% } else { %>
+        <a href="/auth/login" class="btn btn-primary">Log In</a>
+        <a href="/" class="btn btn-outline">Back to Home</a>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

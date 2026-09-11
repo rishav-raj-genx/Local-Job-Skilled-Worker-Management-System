@@ -1,0 +1,189 @@
+<%- include('../partials/header', { title: 'Incoming & Active Job Requests - Worker' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Service Requests & Jobs</h1>
+    <p class="page-subtitle">Manage customer bookings and progress job workflow</p>
+  </div>
+</div>
+
+<!-- Filter Tabs -->
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+  <% const tabs = ['all', 'Pending', 'Accepted', 'In Progress', 'Completed', 'Rejected']; %>
+  <% tabs.forEach(tab => { %>
+    <a 
+      href="/worker/requests?status=<%= tab %>" 
+      class="btn <%= selectedStatus === tab ? 'btn-primary' : 'btn-outline' %> btn-sm"
+      style="border-radius: var(--radius-full);"
+    >
+      <%= tab === 'all' ? 'All Jobs' : tab %>
+    </a>
+  <% }) %>
+</div>
+
+<!-- Jobs Table -->
+<div class="card">
+  <% if (requests && requests.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Service Details</th>
+            <th>Location</th>
+            <th>Preferred Schedule</th>
+            <th>Current Status</th>
+            <th>Update Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% requests.forEach(req => { %>
+            <tr>
+              <td>
+                <strong style="display: block; font-size: 0.95rem;"><%= req.customer ? req.customer.name : 'Unknown Customer' %></strong>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">
+                  📞 <%= req.customer ? req.customer.phone || 'No phone' : '' %>
+                </span>
+                <div style="font-size: 0.75rem; color: var(--text-muted);"><%= req.customer ? req.customer.email : '' %></div>
+              </td>
+              <td>
+                <strong style="color: var(--primary);"><%= req.service %></strong>
+                <p style="font-size: 0.825rem; color: var(--text-muted); margin-top: 0.2rem; max-width: 250px;">
+                  <%= req.description %>
+                </p>
+              </td>
+              <td>
+                <span style="font-size: 0.875rem;">📍 <%= req.location %></span>
+              </td>
+              <td>
+                <strong><%= new Date(req.preferredDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></strong>
+                <div style="font-size: 0.775rem; color: var(--text-muted);"><%= req.preferredTime %></div>
+              </td>
+              <td>
+                <%- include('../partials/statusBadge', { status: req.status }) %>
+              </td>
+              <td>
+                <% if (req.status === 'Pending') { %>
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    <form action="/worker/requests/<%= req._id %>/status" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="Accepted">
+                      <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                    </form>
+                    <button 
+                      type="button" 
+                      class="btn btn-danger btn-sm" 
+                      onclick="openRejectModal('<%= req._id %>')"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                <% } else if (req.status === 'Accepted') { %>
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                    <form action="/worker/requests/<%= req._id %>/status" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="In Progress">
+                      <button type="submit" class="btn btn-primary btn-sm">Start Job</button>
+                    </form>
+                    <button 
+                      type="button" 
+                      class="btn btn-success btn-sm" 
+                      onclick="openCompleteModal('<%= req._id %>')"
+                    >
+                      Complete
+                    </button>
+                  </div>
+                <% } else if (req.status === 'In Progress') { %>
+                  <button 
+                    type="button" 
+                    class="btn btn-success btn-sm" 
+                    onclick="openCompleteModal('<%= req._id %>')"
+                  >
+                    ✓ Complete Job
+                  </button>
+                <% } else if (req.status === 'Completed') { %>
+                  <span style="font-size: 0.825rem; color: var(--success); font-weight: 600;">
+                    ✓ Completed <%= req.rated ? '(Customer Rated)' : '' %>
+                  </span>
+                <% } else if (req.status === 'Rejected') { %>
+                  <span style="font-size: 0.825rem; color: var(--danger); font-weight: 500;">
+                    Declined <%= req.rejectionReason ? `(${req.rejectionReason})` : '' %>
+                  </span>
+                <% } else { %>
+                  <span style="font-size: 0.825rem; color: var(--text-muted);"><%= req.status %></span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">📂</div>
+      <h3 class="empty-title">No Requests in this Category</h3>
+      <p class="empty-desc">
+        No service requests found with status "<%= selectedStatus %>".
+      </p>
+    </div>
+  <% } %>
+</div>
+
+<!-- Modals for Rejection and Completion -->
+<div id="rejectModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center;">
+  <div style="background: #fff; border-radius: var(--radius-md); padding: 1.5rem; max-width: 450px; width: 90%;">
+    <h3 style="margin-bottom: 0.75rem; font-size: 1.2rem;">Decline Service Request</h3>
+    <form id="rejectForm" method="POST">
+      <input type="hidden" name="status" value="Rejected">
+      <div class="form-group">
+        <label for="rejectionReason" class="form-label">Reason for Declining (Optional)</label>
+        <textarea id="rejectionReason" name="rejectionReason" class="form-control" rows="3" placeholder="e.g. Fully booked on this date, outside my coverage zone..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit" class="btn btn-danger btn-sm">Confirm Decline</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="completeModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center;">
+  <div style="background: #fff; border-radius: var(--radius-md); padding: 1.5rem; max-width: 450px; width: 90%;">
+    <h3 style="margin-bottom: 0.75rem; font-size: 1.2rem;">Mark Job Completed</h3>
+    <form id="completeForm" method="POST">
+      <input type="hidden" name="status" value="Completed">
+      <div class="form-group">
+        <label for="completionNotes" class="form-label">Work Completion Notes (Optional)</label>
+        <textarea id="completionNotes" name="completionNotes" class="form-control" rows="3" placeholder="e.g. Replaced 16A socket switch, verified grounding voltage, customer tested..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeCompleteModal()">Cancel</button>
+        <button type="submit" class="btn btn-success btn-sm">Confirm Completion</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openRejectModal(requestId) {
+    const modal = document.getElementById('rejectModal');
+    const form = document.getElementById('rejectForm');
+    form.action = '/worker/requests/' + requestId + '/status';
+    modal.style.display = 'flex';
+  }
+
+  function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+  }
+
+  function openCompleteModal(requestId) {
+    const modal = document.getElementById('completeModal');
+    const form = document.getElementById('completeForm');
+    form.action = '/worker/requests/' + requestId + '/status';
+    modal.style.display = 'flex';
+  }
+
+  function closeCompleteModal() {
+    document.getElementById('completeModal').style.display = 'none';
+  }
+</script>
+
+<%- include('../partials/footer') %>

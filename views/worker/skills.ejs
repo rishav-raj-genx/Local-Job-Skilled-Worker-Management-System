@@ -1,0 +1,73 @@
+<%- include('../partials/header', { title: 'Manage Skills - Skilled Worker Hub' }) %>
+
+<div style="max-width: 750px; margin: 0 auto;">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Manage Trade Skills</h1>
+      <p class="page-subtitle">Add or update skills to appear in customer search queries</p>
+    </div>
+    <a href="/worker/dashboard" class="btn btn-outline btn-sm">&larr; Dashboard</a>
+  </div>
+
+  <!-- Active Skills Showcase -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h3 class="card-title" style="margin-bottom: 0.75rem; font-size: 1.1rem;">Currently Active Skills (<%= (worker.skills || []).length %>)</h3>
+    
+    <% if (worker.skills && worker.skills.length > 0) { %>
+      <div class="skills-pills">
+        <% worker.skills.forEach(skill => { %>
+          <span class="skill-pill" style="font-size: 0.9rem; padding: 0.4rem 0.85rem; background: var(--primary-light); color: var(--primary); border-color: var(--primary-border);">
+            ✓ <%= skill %>
+          </span>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p style="color: var(--warning); font-size: 0.9rem;">
+        ⚠️ You have not selected any skills yet. Customers cannot find you in search results without skills!
+      </p>
+    <% } %>
+  </div>
+
+  <!-- Edit Skills Form -->
+  <div class="card" style="box-shadow: var(--shadow-md);">
+    <form action="/worker/skills" method="POST">
+      <h3 class="card-title" style="margin-bottom: 1rem; font-size: 1.1rem;">Select Common Trade Skills</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.85rem; margin-bottom: 1.75rem;">
+        <% commonSkills.forEach(skill => { %>
+          <% const isSelected = (worker.skills || []).includes(skill); %>
+          <label style="border: 1px solid <%= isSelected ? 'var(--primary)' : 'var(--border-color)' %>; background: <%= isSelected ? '#f5f3ff' : '#ffffff' %>; padding: 0.75rem 1rem; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 0.65rem; transition: var(--transition);">
+            <input 
+              type="checkbox" 
+              name="selectedSkills" 
+              value="<%= skill %>" 
+              <%= isSelected ? 'checked' : '' %>
+            >
+            <span style="font-size: 0.925rem; font-weight: 500;"><%= skill %></span>
+          </label>
+        <% }) %>
+      </div>
+
+      <div class="form-group" style="padding-top: 1.25rem; border-top: 1px solid var(--border-color);">
+        <label for="customSkill" class="form-label">Add Custom or Specialized Skills (Comma Separated)</label>
+        <input 
+          type="text" 
+          id="customSkill" 
+          name="customSkill" 
+          class="form-control" 
+          placeholder="e.g. Solar Panel Technician, CCTV Installation, Locksmith"
+        >
+        <p class="form-hint">Workers can define any relevant trade skills beyond the default list.</p>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="/worker/dashboard" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          Save Skills
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

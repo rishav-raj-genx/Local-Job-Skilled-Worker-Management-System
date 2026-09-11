@@ -1,0 +1,139 @@
+<%- include('../partials/header', { title: 'User Management - Admin Hub' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Platform User Management</h1>
+    <p class="page-subtitle">Inspect registered customers, skilled workers, and administrative accounts</p>
+  </div>
+  <a href="/admin/dashboard" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="filter-card">
+  <form action="/admin/users" method="GET">
+    <div class="filter-grid">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="search" class="form-label">Search Users</label>
+        <input 
+          type="text" 
+          id="search" 
+          name="search" 
+          class="form-control" 
+          placeholder="Name, email, or city..." 
+          value="<%= searchQuery %>"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="role" class="form-label">Filter Role</label>
+        <select name="role" id="role" class="form-select">
+          <option value="all" <%= selectedRole === 'all' ? 'selected' : '' %>>All Roles</option>
+          <option value="customer" <%= selectedRole === 'customer' ? 'selected' : '' %>>Customers</option>
+          <option value="worker" <%= selectedRole === 'worker' ? 'selected' : '' %>>Workers</option>
+          <option value="admin" <%= selectedRole === 'admin' ? 'selected' : '' %>>Admins</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="status" class="form-label">Account Status</label>
+        <select name="status" id="status" class="form-select">
+          <option value="all" <%= selectedStatus === 'all' ? 'selected' : '' %>>All Statuses</option>
+          <option value="active" <%= selectedStatus === 'active' ? 'selected' : '' %>>Active Only</option>
+          <option value="inactive" <%= selectedStatus === 'inactive' ? 'selected' : '' %>>Inactive Only</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="/admin/users" class="btn btn-outline">Clear</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+  <% if (users && users.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Verification</th>
+            <th>Joined Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary);">
+                    <%= user.name.charAt(0) %>
+                  </div>
+                  <div>
+                    <strong style="display: block;"><%= user.name %></strong>
+                    <span style="font-size: 0.775rem; color: var(--text-muted);"><%= user.email %></span>
+                    <% if (user.phone) { %>
+                      <div style="font-size: 0.75rem; color: var(--text-light);"><%= user.phone %></div>
+                    <% } %>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-tag <%= user.role %>"><%= user.role %></span>
+              </td>
+              <td>📍 <%= user.location %></td>
+              <td>
+                <% if (user.isActive) { %>
+                  <span class="badge badge-completed" style="font-size: 0.7rem;">Active</span>
+                <% } else { %>
+                  <span class="badge badge-rejected" style="font-size: 0.7rem;">Deactivated</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (user.role === 'worker') { %>
+                  <% if (user.verificationStatus === 'Verified') { %>
+                    <span class="badge badge-verified" style="font-size: 0.65rem;">Verified</span>
+                  <% } else { %>
+                    <span class="badge badge-unverified" style="font-size: 0.65rem;"><%= user.verificationStatus %></span>
+                  <% } %>
+                <% } else { %>
+                  <span style="color: var(--text-light); font-size: 0.8rem;">N/A</span>
+                <% } %>
+              </td>
+              <td>
+                <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </td>
+              <td>
+                <% if (user._id.toString() !== currentUser._id.toString()) { %>
+                  <form action="/admin/users/<%= user._id %>/toggle-status" method="POST" style="display: inline;" data-confirm="Are you sure you want to <%= user.isActive ? 'deactivate' : 'activate' %> this user?">
+                    <% if (user.isActive) { %>
+                      <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                    <% } else { %>
+                      <button type="submit" class="btn btn-success btn-sm">Activate</button>
+                    <% } %>
+                  </form>
+                <% } else { %>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">Your Account</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h3 class="empty-title">No Users Found</h3>
+      <p class="empty-desc">No accounts match the current filter criteria.</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

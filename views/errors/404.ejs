@@ -1,0 +1,18 @@
+<%- include('../partials/header', { title: '404 - Page Not Found' }) %>
+
+<div style="max-width: 550px; margin: 4rem auto; text-align: center;">
+  <div class="card" style="padding: 3rem 2rem; box-shadow: var(--shadow-lg);">
+    <div style="font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem;">🔍</div>
+    <h1 style="font-size: 2rem; margin-bottom: 0.75rem;">Page Not Found (404)</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.6;">
+      The page or resource you requested at <code><%= typeof url !== 'undefined' ? url : '' %></code> could not be found.
+    </p>
+
+    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+      <a href="/" class="btn btn-primary">Return to Homepage</a>
+      <a href="javascript:history.back()" class="btn btn-outline">Go Back</a>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

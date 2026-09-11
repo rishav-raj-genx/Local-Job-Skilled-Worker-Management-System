@@ -1,0 +1,136 @@
+<%- include('../partials/header', { title: 'Worker Profile Verification - Admin' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Worker Profile Verification</h1>
+    <p class="page-subtitle">Review worker registrations, credentials, and grant verified status</p>
+  </div>
+  <a href="/admin/dashboard" class="btn btn-outline btn-sm">&larr; Back to Dashboard</a>
+</div>
+
+<!-- Verification Status Filter Tabs -->
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+  <a 
+    href="/admin/workers?status=Pending" 
+    class="btn <%= selectedStatus === 'Pending' ? 'btn-primary' : 'btn-outline' %> btn-sm"
+    style="border-radius: var(--radius-full);"
+  >
+    Pending Verification (<%= counts.pending %>)
+  </a>
+  <a 
+    href="/admin/workers?status=Verified" 
+    class="btn <%= selectedStatus === 'Verified' ? 'btn-primary' : 'btn-outline' %> btn-sm"
+    style="border-radius: var(--radius-full);"
+  >
+    Verified (<%= counts.verified %>)
+  </a>
+  <a 
+    href="/admin/workers?status=Rejected" 
+    class="btn <%= selectedStatus === 'Rejected' ? 'btn-primary' : 'btn-outline' %> btn-sm"
+    style="border-radius: var(--radius-full);"
+  >
+    Rejected (<%= counts.rejected %>)
+  </a>
+  <a 
+    href="/admin/workers?status=all" 
+    class="btn <%= selectedStatus === 'all' ? 'btn-primary' : 'btn-outline' %> btn-sm"
+    style="border-radius: var(--radius-full);"
+  >
+    All Workers (<%= counts.all %>)
+  </a>
+</div>
+
+<!-- Worker Verification Queue -->
+<div class="card">
+  <% if (workers && workers.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Worker Name</th>
+            <th>Trade Skills</th>
+            <th>Experience</th>
+            <th>Location & Area</th>
+            <th>Registration Date</th>
+            <th>Status</th>
+            <th>Verification Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% workers.forEach(worker => { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <div style="width: 38px; height: 38px; border-radius: 50%; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                    <%= worker.name.charAt(0) %>
+                  </div>
+                  <div>
+                    <strong style="display: block;"><%= worker.name %></strong>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);"><%= worker.email %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="skills-pills">
+                  <% (worker.skills || []).forEach(skill => { %>
+                    <span class="skill-pill"><%= skill %></span>
+                  <% }) %>
+                </div>
+              </td>
+              <td>
+                <strong><%= worker.experience %></strong> Years
+              </td>
+              <td>
+                <div>📍 <%= worker.location %></div>
+                <% if (worker.serviceArea) { %>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Covers: <%= worker.serviceArea %></span>
+                <% } %>
+              </td>
+              <td>
+                <%= new Date(worker.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+              </td>
+              <td>
+                <% if (worker.verificationStatus === 'Verified') { %>
+                  <span class="badge badge-verified">Verified</span>
+                <% } else if (worker.verificationStatus === 'Rejected') { %>
+                  <span class="badge badge-rejected">Rejected</span>
+                <% } else { %>
+                  <span class="badge badge-pending">Pending</span>
+                <% } %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem;">
+                  <% if (worker.verificationStatus !== 'Verified') { %>
+                    <form action="/admin/workers/<%= worker._id %>/verify" method="POST" style="display: inline;">
+                      <input type="hidden" name="status" value="Verified">
+                      <button type="submit" class="btn btn-success btn-sm">
+                        ✓ Verify
+                      </button>
+                    </form>
+                  <% } %>
+
+                  <% if (worker.verificationStatus !== 'Rejected') { %>
+                    <form action="/admin/workers/<%= worker._id %>/verify" method="POST" style="display: inline;" data-confirm="Are you sure you want to mark this worker as Rejected?">
+                      <input type="hidden" name="status" value="Rejected">
+                      <button type="submit" class="btn btn-danger btn-sm">
+                        ✕ Reject
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">✓</div>
+      <h3 class="empty-title">Queue Clean</h3>
+      <p class="empty-desc">No workers found in "<%= selectedStatus %>" verification status.</p>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
