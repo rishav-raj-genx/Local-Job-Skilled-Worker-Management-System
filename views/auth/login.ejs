@@ -13,7 +13,7 @@
         ⚡ Hackathon Evaluator Quick-Login:
       </span>
       <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-        <button type="button" class="btn btn-outline btn-sm" onclick="fillCredentials('admin@workerhub.com', 'Admin@123')">
+        <button type="button" class="btn btn-outline btn-sm" onclick="fillCredentials('admin', '123456')">
           Admin
         </button>
         <button type="button" class="btn btn-outline btn-sm" onclick="fillCredentials('rajesh.electrician@workerhub.com', 'Worker@123')">
@@ -31,15 +31,15 @@
       <% } %>
 
       <div class="form-group">
-        <label for="email" class="form-label">Email Address</label>
+        <label for="email" class="form-label">Email Address or Admin Username</label>
         <input 
-          type="email" 
+          type="text" 
           id="email" 
           name="email" 
           class="form-control" 
           required 
-          placeholder="name@example.com"
-          autocomplete="email"
+          placeholder="name@example.com or admin"
+          autocomplete="username"
         >
       </div>
 

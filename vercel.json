@@ -1,11 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "views/**",
-        "public/**"
-      ]
+      "includeFiles": "{views,public}/**"
     }
   },
   "rewrites": [

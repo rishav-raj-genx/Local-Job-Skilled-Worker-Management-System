@@ -24,7 +24,7 @@ async function seedDatabase({ autoClose = false } = {}) {
     ]);
 
     console.log('👤 Creating users (Admin, Workers, Customers)...');
-    const adminPassword = 'Admin@123';
+    const adminPassword = '123456';
     const workerPassword = 'Worker@123';
     const customerPassword = 'Customer@123';
 
@@ -276,7 +276,8 @@ async function seedDatabase({ autoClose = false } = {}) {
     console.log('🔐 DEMO CREDENTIALS:');
     console.log('👑 Admin:');
     console.log('   Email:    admin@workerhub.com');
-    console.log('   Password: Admin@123');
+    console.log('   Username: admin');
+    console.log('   Password: 123456');
     console.log('-----------------------------------------------------------');
     console.log('👷 Workers:');
     console.log('   Rajesh (Electrician, Verified):   rajesh.electrician@workerhub.com / Worker@123');

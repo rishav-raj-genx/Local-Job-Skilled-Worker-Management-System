@@ -298,8 +298,8 @@ async function runTests() {
 
     // 6.1 Admin Login
     const adminLoginRes = await adminClient.post('/auth/login', {
-      email: 'admin@workerhub.com',
-      password: 'Admin@123'
+      email: 'admin',
+      password: '123456'
     });
     assert(
       adminLoginRes.status === 302 && adminLoginRes.headers.get('location') === '/admin/dashboard',

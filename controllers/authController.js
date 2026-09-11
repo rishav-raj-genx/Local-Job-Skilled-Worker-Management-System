@@ -24,7 +24,12 @@ const postLogin = async (req, res, next) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    const loginIdentifier = email.toLowerCase().trim();
+    const user = await User.findOne(
+      loginIdentifier === 'admin'
+        ? { role: 'admin' }
+        : { email: loginIdentifier }
+    );
     if (!user) {
       return res.render('auth/login', {
         title: 'Login - Skilled Worker Hub',

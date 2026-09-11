@@ -73,7 +73,7 @@ The application comes pre-configured with realistic demo accounts across all thr
 
 | Role | Email | Password | Details |
 |---|---|---|---|
-| **Admin** | `admin@workerhub.com` | `Admin@123` | Full access to verifications, complaints, and analytics |
+| **Admin** | `admin` (or `admin@workerhub.com`) | `123456` | Full access to verifications, complaints, and analytics |
 | **Worker (Verified)** | `rajesh.electrician@workerhub.com` | `Worker@123` | Electrician & AC Repair, New Delhi (7 yrs exp, 5.0★) |
 | **Worker (Verified)** | `mohit.plumber@workerhub.com` | `Worker@123` | Plumber & Cleaner, Noida (5 yrs exp, 4.0★) |
 | **Worker (Pending)** | `suresh.painter@workerhub.com` | `Worker@123` | Painter & Mason, Ghaziabad (Pending admin verification) |
