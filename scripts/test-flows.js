@@ -140,10 +140,20 @@ async function runTests() {
       phone: '+91 9988776655'
     });
     assert(
-      regRes.status === 302 && regRes.headers.get('location') === '/customer/dashboard',
-      'Customer registers successfully and receives HTTP-only JWT cookie with redirect to /customer/dashboard'
+      regRes.status === 302 && regRes.headers.get('location')?.startsWith('/auth/login?success='),
+      'Customer registers successfully and is redirected to login'
     );
-    assert(!!customerClient.cookies.token, 'JWT cookie stored securely in client jar');
+    assert(!customerClient.cookies.token, 'Registration does not create an authenticated session');
+
+    const customerLogin = await customerClient.post('/auth/login', {
+      email: testCustEmail,
+      password: 'Password@123'
+    });
+    assert(
+      customerLogin.status === 302 && customerLogin.headers.get('location') === '/customer/dashboard',
+      'Customer can log in and is redirected to /customer/dashboard'
+    );
+    assert(!!customerClient.cookies.token, 'JWT cookie is issued after login');
 
     // 2.2 Customer Dashboard Access
     const custDashRes = await customerClient.get('/customer/dashboard');

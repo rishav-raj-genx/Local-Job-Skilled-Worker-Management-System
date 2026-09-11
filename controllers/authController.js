@@ -154,14 +154,10 @@ const postRegister = async (req, res, next) => {
 
     const newUser = await User.create(userData);
 
-    // Set auth cookie
-    setAuthCookie(res, newUser);
-    res.setFlash('success', `Welcome to Skilled Worker Hub, ${newUser.name}! Your account is ready.`);
-
-    if (newUser.role === 'worker') {
-      return res.redirect('/worker/dashboard');
-    }
-    return res.redirect('/customer/dashboard');
+    const successMessage = encodeURIComponent(
+      `Account created for ${newUser.name}. Please log in to continue.`
+    );
+    return res.redirect(`/auth/login?success=${successMessage}`);
   } catch (err) {
     next(err);
   }
