@@ -1,0 +1,14 @@
+<% 
+  const val = Number(typeof rating !== 'undefined' ? rating : 0);
+  const rounded = Math.round(val);
+  const count = typeof total !== 'undefined' ? total : 0;
+%>
+<div class="rating-stars" title="<%= val.toFixed(1) %> out of 5 stars">
+  <% for (let i = 1; i <= 5; i++) { %>
+    <span class="<%= i <= rounded ? 'star-filled' : 'star-empty' %>">★</span>
+  <% } %>
+  <span class="rating-score"><%= val > 0 ? val.toFixed(1) : 'New' %></span>
+  <% if (typeof showCount !== 'undefined' && showCount && count > 0) { %>
+    <span class="rating-count">(<%= count %>)</span>
+  <% } %>
+</div>

@@ -1,0 +1,173 @@
+<%- include('../partials/header', { title: 'Skilled Worker Hub - Local On-Demand Services' }) %>
+
+<!-- Hero Section -->
+<section class="hero-section" style="margin-top: -1.5rem; margin-left: -1.5rem; margin-right: -1.5rem; padding-left: 1.5rem; padding-right: 1.5rem;">
+  <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+    <span style="background: rgba(255, 255, 255, 0.2); padding: 0.35rem 0.9rem; border-radius: 9999px; font-size: 0.825rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: inline-block; margin-bottom: 1.25rem;">
+      Verified Local Skilled Workers
+    </span>
+    <h1 class="hero-title">Hire Reliable Local Professionals In Minutes</h1>
+    <p class="hero-subtitle" style="margin-left: auto; margin-right: auto;">
+      Connect with verified electricians, plumbers, carpenters, painters, and technicians. Real ratings, transparent pricing, and instant job tracking.
+    </p>
+
+    <!-- Search Form -->
+    <form action="/workers" method="GET" class="hero-search-bar">
+      <input 
+        type="text" 
+        name="skill" 
+        placeholder="What skill do you need? (e.g. Electrician, Plumber)" 
+        class="form-control"
+        style="border: 1px solid #cbd5e1; font-size: 1rem;"
+      >
+      <input 
+        type="text" 
+        name="location" 
+        placeholder="City or Area (e.g. New Delhi, Noida)" 
+        class="form-control"
+        style="border: 1px solid #cbd5e1; font-size: 1rem;"
+      >
+      <button type="submit" class="btn btn-primary" style="padding: 0.85rem 1.75rem;">
+        Search Workers
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- Live Platform Highlights -->
+<section style="margin-bottom: 3.5rem;">
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon emerald">✓</div>
+      <div class="metric-info">
+        <h3><%= metrics.completedJobs %></h3>
+        <p>Jobs Successfully Completed</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon indigo">⚡</div>
+      <div class="metric-info">
+        <h3><%= metrics.activeWorkers %></h3>
+        <p>Skilled Workers Enrolled</p>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon sky">★</div>
+      <div class="metric-info">
+        <h3><%= metrics.verifiedWorkers %></h3>
+        <p>Verified Professionals</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Service Categories -->
+<section style="margin-bottom: 4rem;">
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <h2 style="font-size: 2rem;">Popular Service Categories</h2>
+    <p style="color: var(--text-muted); margin-top: 0.35rem;">Find the right specialist for your specific home repair or maintenance task</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.25rem;">
+    <% categories.forEach(cat => { %>
+      <a href="/workers?skill=<%= encodeURIComponent(cat.name) %>" class="card" style="text-decoration: none; color: inherit; transition: var(--transition);">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--primary);">🛠️</div>
+        <h4 style="margin-bottom: 0.35rem; font-size: 1.15rem;"><%= cat.name %></h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted);"><%= cat.desc %></p>
+        <span style="margin-top: 0.75rem; display: inline-block; font-size: 0.825rem; font-weight: 600; color: var(--primary);">Browse <%= cat.name %>s &rarr;</span>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<!-- Featured Verified Workers -->
+<section style="margin-bottom: 4rem;">
+  <div class="page-header">
+    <div>
+      <h2 style="font-size: 1.85rem;">Top Rated Professionals</h2>
+      <p class="page-subtitle">Pre-vetted skilled tradespeople available for hire</p>
+    </div>
+    <a href="/workers" class="btn btn-outline">View All Workers &rarr;</a>
+  </div>
+
+  <% if (featuredWorkers && featuredWorkers.length > 0) { %>
+    <div class="worker-grid">
+      <% featuredWorkers.forEach(worker => { %>
+        <div class="worker-card">
+          <div class="worker-header">
+            <div class="worker-avatar"><%= worker.name.charAt(0) %></div>
+            <div class="worker-details">
+              <h4><%= worker.name %></h4>
+              <div class="worker-location">
+                <span>📍 <%= worker.location %></span>
+                <% if (worker.verificationStatus === 'Verified') { %>
+                  <span class="badge badge-verified" style="font-size: 0.68rem;">Verified</span>
+                <% } %>
+              </div>
+              <div style="margin-top: 0.35rem;">
+                <%- include('../partials/starRating', { rating: worker.averageRating, total: worker.totalRatings, showCount: true }) %>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.5;">
+            <%= worker.bio ? (worker.bio.length > 90 ? worker.bio.slice(0, 90) + '...' : worker.bio) : 'Experienced skilled worker ready for on-demand service requests.' %>
+          </p>
+
+          <div class="skills-pills">
+            <% (worker.skills || []).slice(0, 3).forEach(skill => { %>
+              <span class="skill-pill"><%= skill %></span>
+            <% }) %>
+          </div>
+
+          <div class="worker-footer">
+            <div>
+              <span style="font-size: 0.775rem; color: var(--text-muted); display: block;">Hourly Estimate</span>
+              <strong style="font-size: 1.05rem; color: var(--primary);">₹<%= worker.hourlyRate || 300 %>/hr</strong>
+            </div>
+            <a href="/workers/<%= worker._id %>" class="btn btn-primary btn-sm">View Profile</a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">👷</div>
+      <h3 class="empty-title">Workers Joining Soon</h3>
+      <p class="empty-desc">Verified skilled workers are currently being onboarded.</p>
+    </div>
+  <% } %>
+</section>
+
+<!-- How It Works Section -->
+<section style="background: #ffffff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 3rem 2rem; margin-bottom: 2rem;">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <h2 style="font-size: 2rem;">How Skilled Worker Hub Works</h2>
+    <p style="color: var(--text-muted);">A transparent, controlled gig economy workflow</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; text-align: center;">
+    <div>
+      <div style="width: 55px; height: 55px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 800; margin: 0 auto 1rem auto;">1</div>
+      <h4 style="margin-bottom: 0.5rem;">Search & Pick</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Search verified workers filtered by trade skills, location, and authentic star reviews.</p>
+    </div>
+    <div>
+      <div style="width: 55px; height: 55px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 800; margin: 0 auto 1rem auto;">2</div>
+      <h4 style="margin-bottom: 0.5rem;">Submit Request</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Specify preferred date, time slot, and task description. Request enters Pending status.</p>
+    </div>
+    <div>
+      <div style="width: 55px; height: 55px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 800; margin: 0 auto 1rem auto;">3</div>
+      <h4 style="margin-bottom: 0.5rem;">Worker Workflow</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Worker accepts the request, transitions to In Progress, and marks Completed upon finishing.</p>
+    </div>
+    <div>
+      <div style="width: 55px; height: 55px; border-radius: 50%; background: #d1fae5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; font-weight: 800; margin: 0 auto 1rem auto;">4</div>
+      <h4 style="margin-bottom: 0.5rem;">Rate & Review</h4>
+      <p style="font-size: 0.85rem; color: var(--text-muted);">Submit a 1–5 star rating and review to keep community quality high and transparent.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,110 @@
+<%- include('../partials/header', { title: 'My Service Requests - Skilled Worker Hub' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">My Service Requests</h1>
+    <p class="page-subtitle">Track the status of your booked services from request to completion</p>
+  </div>
+  <a href="/customer/requests/new" class="btn btn-primary">
+    + New Service Request
+  </a>
+</div>
+
+<!-- Status Filter Tabs -->
+<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+  <% const tabs = ['all', 'Pending', 'Accepted', 'In Progress', 'Completed', 'Cancelled', 'Rejected']; %>
+  <% tabs.forEach(tab => { %>
+    <a 
+      href="/customer/requests?status=<%= tab %>" 
+      class="btn <%= selectedStatus === tab ? 'btn-primary' : 'btn-outline' %> btn-sm"
+      style="border-radius: var(--radius-full);"
+    >
+      <%= tab === 'all' ? 'All Requests' : tab %>
+    </a>
+  <% }) %>
+</div>
+
+<!-- Requests Table -->
+<div class="card">
+  <% if (requests && requests.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Worker</th>
+            <th>Service</th>
+            <th>Scheduled Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% requests.forEach(req => { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div style="width: 40px; height: 40px; border-radius: 50%; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                    <%= req.worker ? req.worker.name.charAt(0) : '?' %>
+                  </div>
+                  <div>
+                    <strong style="display: block;"><%= req.worker ? req.worker.name : 'Unknown Worker' %></strong>
+                    <span style="font-size: 0.775rem; color: var(--text-muted);"><%= req.worker ? req.worker.location : '' %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong style="color: var(--primary);"><%= req.service %></strong>
+                <div style="font-size: 0.775rem; color: var(--text-muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <%= req.description %>
+                </div>
+              </td>
+              <td>
+                <%= new Date(req.preferredDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                <div style="font-size: 0.775rem; color: var(--text-muted);"><%= req.preferredTime %></div>
+              </td>
+              <td>
+                <%- include('../partials/statusBadge', { status: req.status }) %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+                  <a href="/customer/requests/<%= req._id %>" class="btn btn-outline btn-sm">
+                    Details
+                  </a>
+
+                  <% if (req.status === 'Completed' && !req.rated) { %>
+                    <a href="/customer/requests/<%= req._id %>/rate" class="btn btn-warning btn-sm" style="background: #f59e0b; color: #fff;">
+                      ★ Rate Job
+                    </a>
+                  <% } else if (req.status === 'Completed' && req.rated) { %>
+                    <span style="font-size: 0.775rem; color: var(--success); font-weight: 600;">✓ Rated</span>
+                  <% } %>
+
+                  <% if (req.status === 'Pending') { %>
+                    <form action="/customer/requests/<%= req._id %>/cancel" method="POST" style="display: inline;" data-confirm="Are you sure you want to cancel this request?">
+                      <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3 class="empty-title">No Requests Found</h3>
+      <p class="empty-desc">
+        <% if (selectedStatus !== 'all') { %>
+          No service requests found with status "<%= selectedStatus %>".
+        <% } else { %>
+          You have not created any service requests yet.
+        <% } %>
+      </p>
+      <a href="/customer/search" class="btn btn-primary">Find a Worker</a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

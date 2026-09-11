@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'Skilled Worker Hub - Local Job & Skilled Worker Management' %></title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/public/css/style.css">
+  <meta name="description" content="Find trusted local skilled workers: electricians, plumbers, carpenters, painters, and more.">
+</head>
+<body>
+  <%- include('./navbar') %>
+  <main class="main-content">
+    <div class="container" style="padding-top: 1.5rem; padding-bottom: 2rem;">
+      <%- include('./flash') %>

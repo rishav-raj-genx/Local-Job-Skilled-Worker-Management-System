@@ -1,0 +1,36 @@
+{
+  "name": "class-hackathon-skilled-worker-system",
+  "version": "1.0.0",
+  "description": "Local Job & Skilled Worker Management System (PS 7)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed.js",
+    "test": "node scripts/test-flows.js"
+  },
+  "keywords": [
+    "gig-economy",
+    "skilled-workers",
+    "express",
+    "ejs",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.5",
+    "morgan": "^1.12.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.2.0",
+    "nodemon": "^3.1.14"
+  }
+}

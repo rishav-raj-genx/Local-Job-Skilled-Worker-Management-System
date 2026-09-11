@@ -1,0 +1,19 @@
+<% 
+  let badgeClass = 'badge-pending';
+  const s = (typeof status !== 'undefined' ? status : '').toLowerCase();
+  
+  if (s === 'pending') badgeClass = 'badge-pending';
+  else if (s === 'accepted') badgeClass = 'badge-accepted';
+  else if (s === 'in progress') badgeClass = 'badge-progress';
+  else if (s === 'completed') badgeClass = 'badge-completed';
+  else if (s === 'rejected') badgeClass = 'badge-rejected';
+  else if (s === 'cancelled') badgeClass = 'badge-cancelled';
+  else if (s === 'verified') badgeClass = 'badge-verified';
+  else if (s === 'open') badgeClass = 'badge-pending';
+  else if (s === 'under review') badgeClass = 'badge-accepted';
+  else if (s === 'resolved') badgeClass = 'badge-completed';
+  else if (s === 'closed') badgeClass = 'badge-cancelled';
+%>
+<span class="badge <%= badgeClass %>">
+  <%= status %>
+</span>

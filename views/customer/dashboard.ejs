@@ -1,0 +1,121 @@
+<%- include('../partials/header', { title: 'Customer Dashboard - Skilled Worker Hub' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Welcome, <%= currentUser.name %>!</h1>
+    <p class="page-subtitle">Track your active bookings, request new services, and manage repairs</p>
+  </div>
+  <a href="/customer/search" class="btn btn-primary">
+    <span>🔍</span> Find & Book a Worker
+  </a>
+</div>
+
+<!-- Metrics Overview -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon indigo">📋</div>
+    <div class="metric-info">
+      <h3><%= totalRequests %></h3>
+      <p>Total Bookings</p>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon amber">⏳</div>
+    <div class="metric-info">
+      <h3><%= pendingRequests %></h3>
+      <p>Pending Approval</p>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon sky">⚡</div>
+    <div class="metric-info">
+      <h3><%= activeRequests %></h3>
+      <p>Active In-Progress</p>
+    </div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-icon emerald">✓</div>
+    <div class="metric-info">
+      <h3><%= completedRequests %></h3>
+      <p>Completed Jobs</p>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Category Search Pills -->
+<div class="card" style="margin-bottom: 2rem;">
+  <div class="card-header">
+    <h3 class="card-title">Quick Search by Trade Skill</h3>
+    <a href="/customer/search" style="font-size: 0.85rem; font-weight: 600;">View All Categories &rarr;</a>
+  </div>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.6rem;">
+    <% popularCategories.forEach(cat => { %>
+      <a href="/customer/search?skill=<%= encodeURIComponent(cat) %>" class="skill-pill" style="font-size: 0.85rem; padding: 0.4rem 0.85rem; text-decoration: none;">
+        <%= cat %>
+      </a>
+    <% }) %>
+  </div>
+</div>
+
+<!-- Recent Service Requests -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Recent Service Requests</h3>
+    <a href="/customer/requests" style="font-size: 0.85rem; font-weight: 600;">View All Requests &rarr;</a>
+  </div>
+
+  <% if (recentRequests && recentRequests.length > 0) { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Worker</th>
+            <th>Service</th>
+            <th>Preferred Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% recentRequests.forEach(req => { %>
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.65rem;">
+                  <div style="width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary);">
+                    <%= req.worker ? req.worker.name.charAt(0) : '?' %>
+                  </div>
+                  <div>
+                    <strong style="display: block;"><%= req.worker ? req.worker.name : 'Unknown Worker' %></strong>
+                    <span style="font-size: 0.775rem; color: var(--text-muted);"><%= req.worker ? req.worker.location : '' %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong style="color: var(--primary);"><%= req.service %></strong>
+              </td>
+              <td>
+                <%= new Date(req.preferredDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                <div style="font-size: 0.775rem; color: var(--text-muted);"><%= req.preferredTime %></div>
+              </td>
+              <td>
+                <%- include('../partials/statusBadge', { status: req.status }) %>
+              </td>
+              <td>
+                <a href="/customer/requests/<%= req._id %>" class="btn btn-outline btn-sm">View Details</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <div class="empty-icon">🛠️</div>
+      <h3 class="empty-title">No Service Requests Yet</h3>
+      <p class="empty-desc">You haven't requested any services yet. Search skilled workers in your area to get started!</p>
+      <a href="/customer/search" class="btn btn-primary">Find a Worker</a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

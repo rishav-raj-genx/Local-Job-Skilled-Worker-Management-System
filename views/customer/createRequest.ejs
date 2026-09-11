@@ -1,0 +1,131 @@
+<%- include('../partials/header', { title: 'Book a Skilled Worker - Service Request' }) %>
+
+<div style="max-width: 650px; margin: 1rem auto 3rem auto;">
+  <div class="card" style="box-shadow: var(--shadow-lg);">
+    <div class="card-header">
+      <div>
+        <h1 class="card-title" style="font-size: 1.5rem;">Create a Service Request</h1>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+          Submit your requirements to initiate an on-demand job with a skilled professional
+        </p>
+      </div>
+    </div>
+
+    <form action="/customer/requests/new" method="POST">
+      <!-- Target Worker -->
+      <% if (selectedWorker) { %>
+        <input type="hidden" name="workerId" value="<%= selectedWorker._id %>">
+        <div style="background: #f1f5f9; padding: 1rem; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+              <%= selectedWorker.name.charAt(0) %>
+            </div>
+            <div>
+              <strong style="display: block; font-size: 1rem;"><%= selectedWorker.name %></strong>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">
+                📍 <%= selectedWorker.location %> &bull; ₹<%= selectedWorker.hourlyRate || 300 %>/hr
+              </span>
+            </div>
+          </div>
+          <a href="/customer/search" style="font-size: 0.8rem; font-weight: 600;">Change Worker</a>
+        </div>
+      <% } else { %>
+        <div class="form-group">
+          <label for="workerSelect" class="form-label">Select Skilled Worker *</label>
+          <select name="workerId" id="workerSelect" class="form-select" required>
+            <option value="">-- Choose a skilled worker --</option>
+            <% (availableWorkers || []).forEach(w => { %>
+              <option value="<%= w._id %>">
+                <%= w.name %> (<%= (w.skills || []).join(', ') %>) - <%= w.location %> - ₹<%= w.hourlyRate || 300 %>/hr
+              </option>
+            <% }) %>
+          </select>
+        </div>
+      <% } %>
+
+      <!-- Service Selection -->
+      <div class="form-group">
+        <label for="service" class="form-label">Service Required *</label>
+        <% if (selectedWorker && selectedWorker.skills && selectedWorker.skills.length > 0) { %>
+          <select name="service" id="service" class="form-select" required>
+            <% selectedWorker.skills.forEach(skill => { %>
+              <option value="<%= skill %>"><%= skill %></option>
+            <% }) %>
+            <option value="General Repair">Other / General Repair</option>
+          </select>
+        <% } else { %>
+          <input 
+            type="text" 
+            name="service" 
+            id="service" 
+            class="form-control" 
+            required 
+            placeholder="e.g. Electrician, AC Repair, Plumbing Fix"
+          >
+        <% } %>
+      </div>
+
+      <!-- Problem Description -->
+      <div class="form-group">
+        <label for="description" class="form-label">Job Description & Details *</label>
+        <textarea 
+          name="description" 
+          id="description" 
+          class="form-control" 
+          rows="3" 
+          required 
+          placeholder="Please describe the issue (e.g. Living room switchboard sparking, need AC gas refill, pipe leak under sink)..."
+        ></textarea>
+        <p class="form-hint">Detailed descriptions help the worker bring the right tools and parts.</p>
+      </div>
+
+      <!-- Service Location -->
+      <div class="form-group">
+        <label for="location" class="form-label">Service Address / Location *</label>
+        <input 
+          type="text" 
+          name="location" 
+          id="location" 
+          class="form-control" 
+          required 
+          placeholder="e.g. Flat 302, Green Valley Apts, Sector 62, Noida"
+          value="<%= currentUser.location || '' %>"
+        >
+      </div>
+
+      <!-- Preferred Timing -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label for="preferredDate" class="form-label">Preferred Date *</label>
+          <input 
+            type="date" 
+            name="preferredDate" 
+            id="preferredDate" 
+            class="form-control" 
+            required 
+            min="<%= new Date().toISOString().split('T')[0] %>"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="preferredTime" class="form-label">Preferred Time Window</label>
+          <select name="preferredTime" id="preferredTime" class="form-select">
+            <option value="Morning (09:00 - 12:00)">Morning (09:00 - 12:00)</option>
+            <option value="Afternoon (12:00 - 15:00)">Afternoon (12:00 - 15:00)</option>
+            <option value="Evening (15:00 - 18:00)">Evening (15:00 - 18:00)</option>
+            <option value="Night (18:00 - 21:00)">Night (18:00 - 21:00)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <a href="/customer/dashboard" class="btn btn-outline">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          Submit Service Request
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

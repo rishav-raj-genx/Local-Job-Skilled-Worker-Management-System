@@ -1,0 +1,183 @@
+<%- include('../partials/header', { title: `Job Details #${request._id.toString().slice(-6)}` }) %>
+
+<div style="max-width: 850px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/customer/requests" class="btn btn-outline btn-sm">&larr; Back to My Requests</a>
+    <%- include('../partials/statusBadge', { status: request.status }) %>
+  </div>
+
+  <!-- Lifecycle Pipeline Indicator -->
+  <div class="card" style="margin-bottom: 1.75rem; padding: 1.5rem;">
+    <h4 style="font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1.25rem;">
+      Job Lifecycle Status
+    </h4>
+    <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+      <% 
+        const stages = ['Pending', 'Accepted', 'In Progress', 'Completed'];
+        const currentIdx = stages.indexOf(request.status);
+      %>
+      <% stages.forEach((stage, idx) => { %>
+        <div style="display: flex; flex-direction: column; align-items: center; z-index: 2; text-align: center;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; 
+            <%= (currentIdx >= idx && !['Rejected', 'Cancelled'].includes(request.status)) ? 'background: var(--primary); color: #fff;' : 'background: #e2e8f0; color: #64748b;' %>">
+            <%= (currentIdx > idx && !['Rejected', 'Cancelled'].includes(request.status)) ? '✓' : (idx + 1) %>
+          </div>
+          <span style="font-size: 0.8rem; font-weight: 600; margin-top: 0.4rem; color: <%= (currentIdx >= idx && !['Rejected', 'Cancelled'].includes(request.status)) ? 'var(--primary)' : 'var(--text-muted)' %>;">
+            <%= stage %>
+          </span>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (request.status === 'Rejected') { %>
+      <div style="background: var(--danger-light); border: 1px solid var(--danger-border); color: #b91c1c; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-top: 1.25rem; font-size: 0.9rem;">
+        <strong>Request Declined:</strong> The worker was unavailable. <%= request.rejectionReason ? `Reason: ${request.rejectionReason}` : '' %>
+      </div>
+    <% } else if (request.status === 'Cancelled') { %>
+      <div style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 0.85rem 1rem; border-radius: var(--radius-sm); margin-top: 1.25rem; font-size: 0.9rem;">
+        <strong>Request Cancelled:</strong> This service request was cancelled.
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Job Details & Worker Info Grid -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Service Details -->
+    <div class="card">
+      <h3 class="card-title" style="margin-bottom: 1rem; font-size: 1.15rem;">Request Information</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.925rem;">
+        <div>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Service</span>
+          <strong style="color: var(--primary); font-size: 1.05rem;"><%= request.service %></strong>
+        </div>
+
+        <div>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Scheduled Date & Time</span>
+          <strong><%= new Date(request.preferredDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }) %></strong>
+          <div style="color: var(--text-muted); font-size: 0.85rem;"><%= request.preferredTime %></div>
+        </div>
+
+        <div>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Service Address</span>
+          <span>📍 <%= request.location %></span>
+        </div>
+
+        <div>
+          <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Description / Notes</span>
+          <p style="background: #f8fafc; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.25rem;">
+            <%= request.description %>
+          </p>
+        </div>
+
+        <% if (request.completionNotes) { %>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Worker Completion Notes</span>
+            <p style="background: var(--success-light); color: #065f46; padding: 0.75rem; border-radius: 6px; border: 1px solid var(--success-border); margin-top: 0.25rem;">
+              <%= request.completionNotes %>
+            </p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Worker Info Card -->
+    <div class="card">
+      <h3 class="card-title" style="margin-bottom: 1rem; font-size: 1.15rem;">Assigned Worker</h3>
+
+      <% if (request.worker) { %>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+          <div style="width: 55px; height: 55px; border-radius: 50%; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;">
+            <%= request.worker.name.charAt(0) %>
+          </div>
+          <div>
+            <h4 style="font-size: 1.15rem;"><%= request.worker.name %></h4>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">📍 <%= request.worker.location %></span>
+            <div style="margin-top: 0.25rem;">
+              <%- include('../partials/starRating', { rating: request.worker.averageRating, total: request.worker.totalRatings, showCount: true }) %>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.9rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Contact Phone</span>
+            <strong><%= request.worker.phone || 'Available once accepted' %></strong>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Skills</span>
+            <div class="skills-pills">
+              <% (request.worker.skills || []).forEach(s => { %>
+                <span class="skill-pill"><%= s %></span>
+              <% }) %>
+            </div>
+          </div>
+          <div>
+            <a href="/customer/workers/<%= request.worker._id %>" class="btn btn-outline btn-sm" style="margin-top: 0.5rem;">
+              View Full Profile
+            </a>
+          </div>
+        </div>
+      <% } else { %>
+        <p style="color: var(--text-muted);">Worker information unavailable.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Rating / Feedback Section (Stretch Goal) -->
+  <% if (request.status === 'Completed') { %>
+    <div class="card" style="margin-bottom: 1.75rem; border-left: 4px solid var(--warning);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h4 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Rate Your Service Experience</h4>
+          <p style="font-size: 0.875rem; color: var(--text-muted);">
+            Your feedback directly impacts the worker's platform rating and helps other customers.
+          </p>
+        </div>
+
+        <% if (!request.rated) { %>
+          <a href="/customer/requests/<%= request._id %>/rate" class="btn btn-warning" style="background: #f59e0b; color: #fff;">
+            ★ Rate This Service (1-5 Stars)
+          </a>
+        <% } else if (rating) { %>
+          <div style="text-align: right;">
+            <div style="display: flex; align-items: center; gap: 0.4rem;">
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--success);">You Rated:</span>
+              <%- include('../partials/starRating', { rating: rating.rating }) %>
+            </div>
+            <% if (rating.review) { %>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; font-style: italic;">
+                "<%= rating.review %>"
+              </p>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Actions Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+    <div>
+      <% if (!complaint) { %>
+        <a href="/customer/requests/<%= request._id %>/complaint" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger-border);">
+          ⚠️ Report Issue / File Complaint
+        </a>
+      <% } else { %>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+          Complaint filed: <%- include('../partials/statusBadge', { status: complaint.status }) %>
+        </span>
+      <% } %>
+    </div>
+
+    <div>
+      <% if (request.status === 'Pending') { %>
+        <form action="/customer/requests/<%= request._id %>/cancel" method="POST" style="display: inline;" data-confirm="Are you sure you want to cancel this pending service request?">
+          <button type="submit" class="btn btn-danger">Cancel Request</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

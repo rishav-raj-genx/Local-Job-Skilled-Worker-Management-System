@@ -1,0 +1,61 @@
+<%- include('../partials/header', { title: `Rate Job - ${request.worker.name}` }) %>
+
+<div style="max-width: 550px; margin: 2rem auto;">
+  <div class="card" style="box-shadow: var(--shadow-lg);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h1 style="font-size: 1.65rem; margin-bottom: 0.5rem;">Rate Your Service</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        How was your experience with <strong><%= request.worker.name %></strong> for <strong><%= request.service %></strong>?
+      </p>
+    </div>
+
+    <form action="/customer/requests/<%= request._id %>/rate" method="POST">
+      <!-- Interactive Star Picker -->
+      <div class="form-group" style="text-align: center; margin-bottom: 2rem;">
+        <label class="form-label" style="display: block; margin-bottom: 0.75rem;">Select Rating (1 to 5 Stars) *</label>
+        
+        <div class="star-rating-picker" style="justify-content: center;">
+          <input type="radio" id="star5" name="rating" value="5" required>
+          <label for="star5" title="5 stars - Excellent">★</label>
+
+          <input type="radio" id="star4" name="rating" value="4">
+          <label for="star4" title="4 stars - Very Good">★</label>
+
+          <input type="radio" id="star3" name="rating" value="3">
+          <label for="star3" title="3 stars - Good">★</label>
+
+          <input type="radio" id="star2" name="rating" value="2">
+          <label for="star2" title="2 stars - Fair">★</label>
+
+          <input type="radio" id="star1" name="rating" value="1">
+          <label for="star1" title="1 star - Poor">★</label>
+        </div>
+
+        <div id="selectedRatingText" style="margin-top: 0.5rem; font-weight: 600; color: var(--primary); font-size: 0.95rem;">
+          Click a star to select rating
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="review" class="form-label">Review & Feedback (Optional)</label>
+        <textarea 
+          id="review" 
+          name="review" 
+          class="form-control" 
+          rows="4" 
+          placeholder="Describe punctuality, quality of work, cleanliness, and overall satisfaction..."
+        ></textarea>
+        <p class="form-hint">Your review will be publicly visible on the worker's verified profile.</p>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="/customer/requests/<%= request._id %>" class="btn btn-outline" style="flex: 1;">Cancel</a>
+        <button type="submit" class="btn btn-primary" style="flex: 2;">
+          Submit Verified Rating
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

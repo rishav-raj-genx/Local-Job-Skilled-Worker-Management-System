@@ -1,0 +1,116 @@
+<%- include('../partials/header', { title: `${worker.name} - Skilled Worker Profile` }) %>
+
+<div style="max-width: 900px; margin: 0 auto;">
+  <!-- Profile Overview Card -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap;">
+      <div style="width: 90px; height: 90px; border-radius: var(--radius-full); background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 800; border: 3px solid #c7d2fe;">
+        <%= worker.name.charAt(0) %>
+      </div>
+
+      <div style="flex: 1; min-width: 260px;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.35rem;">
+          <h1 style="font-size: 1.85rem;"><%= worker.name %></h1>
+          <% if (worker.verificationStatus === 'Verified') { %>
+            <span class="badge badge-verified">✓ Verified Professional</span>
+          <% } else { %>
+            <span class="badge badge-unverified">Verification <%= worker.verificationStatus %></span>
+          <% } %>
+        </div>
+
+        <div style="color: var(--text-muted); font-size: 0.925rem; margin-bottom: 0.75rem; display: flex; gap: 1.25rem; flex-wrap: wrap;">
+          <span>📍 <%= worker.location %></span>
+          <% if (worker.serviceArea) { %>
+            <span>🚗 Covers: <%= worker.serviceArea %></span>
+          <% } %>
+          <span>⏳ <%= worker.experience %> Years Experience</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <%- include('../partials/starRating', { rating: worker.averageRating, total: worker.totalRatings, showCount: true }) %>
+          <span style="color: var(--text-light);">&bull;</span>
+          <span style="font-weight: 700; color: var(--primary); font-size: 1.1rem;">₹<%= worker.hourlyRate || 300 %>/hr</span>
+        </div>
+
+        <div class="skills-pills" style="margin-bottom: 1.25rem;">
+          <% (worker.skills || []).forEach(skill => { %>
+            <span class="skill-pill" style="font-size: 0.85rem; padding: 0.35rem 0.75rem;"><%= skill %></span>
+          <% }) %>
+        </div>
+
+        <% if (worker.bio) { %>
+          <div style="background: #f8fafc; padding: 1rem 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 1.25rem;">
+            <strong style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">About the Worker</strong>
+            <p style="font-size: 0.95rem; color: var(--text-main); line-height: 1.6;"><%= worker.bio %></p>
+          </div>
+        <% } %>
+
+        <div>
+          <% if (currentUser && currentUser.role === 'customer') { %>
+            <a href="/customer/requests/new?workerId=<%= worker._id %>" class="btn btn-primary btn-lg">
+              📅 Request Service from <%= worker.name.split(' ')[0] %>
+            </a>
+          <% } else if (!currentUser) { %>
+            <a href="/auth/login?redirect=<%= encodeURIComponent('/customer/requests/new?workerId=' + worker._id) %>" class="btn btn-primary btn-lg">
+              Log In to Book Service
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Reviews Section -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h3 class="card-title">Customer Ratings & Reviews</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem;">
+          Authentic feedback from verified customers who completed service requests
+        </p>
+      </div>
+      <div style="text-align: right;">
+        <span style="font-size: 1.75rem; font-weight: 800; color: var(--text-main);"><%= worker.averageRating > 0 ? worker.averageRating.toFixed(1) : '0.0' %></span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;">/ 5</span>
+      </div>
+    </div>
+
+    <% if (reviews && reviews.length > 0) { %>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <% reviews.forEach(rev => { %>
+          <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div style="width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--primary); font-size: 0.85rem;">
+                  <%= rev.customer ? rev.customer.name.charAt(0) : 'C' %>
+                </div>
+                <div>
+                  <strong style="font-size: 0.925rem;"><%= rev.customer ? rev.customer.name : 'Customer' %></strong>
+                  <span style="font-size: 0.775rem; color: var(--text-muted); display: block;">
+                    <%= new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                  </span>
+                </div>
+              </div>
+
+              <%- include('../partials/starRating', { rating: rev.rating }) %>
+            </div>
+
+            <% if (rev.review) { %>
+              <p style="font-size: 0.925rem; color: var(--text-main); line-height: 1.5; margin-left: 2.75rem;">
+                "<%= rev.review %>"
+              </p>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state" style="padding: 2rem;">
+        <div class="empty-icon" style="font-size: 2rem;">⭐</div>
+        <h4 style="font-size: 1.05rem;">No Reviews Yet</h4>
+        <p class="empty-desc" style="font-size: 0.85rem;">Be the first customer to book this worker and leave a verified review!</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

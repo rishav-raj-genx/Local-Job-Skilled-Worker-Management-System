@@ -1,0 +1,20 @@
+<% if (typeof flash !== 'undefined' && flash) { %>
+  <div class="flash-alert <%= flash.type %>" role="alert">
+    <span><%= flash.message %></span>
+    <button type="button" class="flash-close" aria-label="Close">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="flash-alert error" role="alert">
+    <span><%= error %></span>
+    <button type="button" class="flash-close" aria-label="Close">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="flash-alert success" role="alert">
+    <span><%= success %></span>
+    <button type="button" class="flash-close" aria-label="Close">&times;</button>
+  </div>
+<% } %>

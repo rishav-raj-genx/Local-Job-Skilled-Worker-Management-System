@@ -1,0 +1,154 @@
+<%- include('../partials/header', { title: 'Find Local Skilled Workers - Skilled Worker Hub' }) %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Find Skilled Workers</h1>
+    <p class="page-subtitle">Search by trade skills, city location, and verified status</p>
+  </div>
+</div>
+
+<!-- Search & Filter Form (Queries MongoDB) -->
+<div class="filter-card">
+  <form action="/customer/search" method="GET">
+    <div class="filter-grid">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="skillInput" class="form-label">Trade Skill</label>
+        <input 
+          type="text" 
+          id="skillInput" 
+          name="skill" 
+          class="form-control" 
+          placeholder="e.g. Electrician, Plumber, Painter" 
+          value="<%= selectedSkill %>"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="locationInput" class="form-label">City / Location</label>
+        <input 
+          type="text" 
+          id="locationInput" 
+          name="location" 
+          class="form-control" 
+          placeholder="e.g. New Delhi, Noida, Gurgaon" 
+          value="<%= selectedLocation %>"
+        >
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="sortSelect" class="form-label">Sort By</label>
+        <select name="sort" id="sortSelect" class="form-select">
+          <option value="rating" <%= selectedSort === 'rating' ? 'selected' : '' %>>Highest Rated</option>
+          <option value="experience" <%= selectedSort === 'experience' ? 'selected' : '' %>>Most Experienced</option>
+          <option value="rate_asc" <%= selectedSort === 'rate_asc' ? 'selected' : '' %>>Price: Low to High</option>
+          <option value="rate_desc" <%= selectedSort === 'rate_desc' ? 'selected' : '' %>>Price: High to Low</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+        <button type="submit" class="btn btn-primary">
+          Filter Workers
+        </button>
+        <a href="/customer/search" class="btn btn-outline" title="Reset Filters">Clear</a>
+      </div>
+    </div>
+
+    <!-- Quick Skill Chips -->
+    <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+      <span style="font-size: 0.775rem; color: var(--text-muted); font-weight: 600;">Popular Skills:</span>
+      <% allSkills.forEach(skill => { %>
+        <a 
+          href="/customer/search?skill=<%= encodeURIComponent(skill) %>&location=<%= encodeURIComponent(selectedLocation) %>" 
+          class="skill-pill"
+          style="<%= selectedSkill.toLowerCase() === skill.toLowerCase() ? 'background: var(--primary); color: #fff; border-color: var(--primary);' : '' %>"
+        >
+          <%= skill %>
+        </a>
+      <% }) %>
+    </div>
+  </form>
+</div>
+
+<!-- Results Counter -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+  <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">
+    Found <strong><%= totalFound %></strong> skilled worker<%= totalFound === 1 ? '' : 's' %>
+    <% if (selectedSkill) { %> with skill "<strong><%= selectedSkill %></strong>"<% } %>
+    <% if (selectedLocation) { %> in "<strong><%= selectedLocation %></strong>"<% } %>
+  </span>
+</div>
+
+<!-- Worker Cards Grid -->
+<% if (workers && workers.length > 0) { %>
+  <div class="worker-grid">
+    <% workers.forEach(worker => { %>
+      <div class="worker-card">
+        <div class="worker-header">
+          <div class="worker-avatar">
+            <%= worker.name.charAt(0) %>
+          </div>
+          <div class="worker-details" style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <h4><%= worker.name %></h4>
+              <% if (worker.verificationStatus === 'Verified') { %>
+                <span class="badge badge-verified" style="font-size: 0.65rem;">Verified</span>
+              <% } else { %>
+                <span class="badge badge-unverified" style="font-size: 0.65rem;">Unverified</span>
+              <% } %>
+            </div>
+            
+            <div class="worker-location">
+              <span>📍 <%= worker.location %></span>
+              <% if (worker.serviceArea) { %>
+                <span style="color: var(--text-light); font-size: 0.75rem;">(Covers: <%= worker.serviceArea %>)</span>
+              <% } %>
+            </div>
+
+            <div style="margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+              <%- include('../partials/starRating', { rating: worker.averageRating, total: worker.totalRatings, showCount: true }) %>
+              <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
+                <%= worker.experience %> yr<%= worker.experience === 1 ? '' : 's' %> exp
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+          <%= worker.bio ? (worker.bio.length > 100 ? worker.bio.slice(0, 100) + '...' : worker.bio) : 'Dedicated skilled worker offering reliable on-site maintenance and repairs.' %>
+        </p>
+
+        <!-- Primary Skills -->
+        <div class="skills-pills">
+          <% (worker.skills || []).forEach(skill => { %>
+            <span class="skill-pill"><%= skill %></span>
+          <% }) %>
+        </div>
+
+        <div class="worker-footer">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Hourly Rate</span>
+            <strong style="color: var(--primary); font-size: 1.1rem;">₹<%= worker.hourlyRate || 300 %>/hr</strong>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="/customer/workers/<%= worker._id %>" class="btn btn-outline btn-sm">
+              View Profile
+            </a>
+            <a href="/customer/requests/new?workerId=<%= worker._id %>" class="btn btn-primary btn-sm">
+              Request Service
+            </a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } else { %>
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3 class="empty-title">No Workers Found</h3>
+    <p class="empty-desc">No skilled workers match your current search criteria. Try broadening your location or selecting a different skill.</p>
+    <a href="/customer/search" class="btn btn-primary">Reset Filters</a>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
