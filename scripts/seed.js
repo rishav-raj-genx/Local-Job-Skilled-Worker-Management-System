@@ -24,15 +24,13 @@ async function seedDatabase({ autoClose = false } = {}) {
     ]);
 
     console.log('👤 Creating users (Admin, Workers, Customers)...');
-    const adminPassword = '123456';
-    const workerPassword = 'Worker@123';
-    const customerPassword = 'Customer@123';
+    const universalPassword = '123456';
 
     // 1. Admin
     const admin = await User.create({
-      name: 'Platform Admin',
+      name: 'Admin',
       email: 'admin@workerhub.com',
-      password: adminPassword,
+      password: universalPassword,
       phone: '+91 99999 00001',
       role: 'admin',
       location: 'New Delhi',
@@ -42,8 +40,8 @@ async function seedDatabase({ autoClose = false } = {}) {
     // 2. Workers
     const worker1 = await User.create({
       name: 'Rajesh Sharma',
-      email: 'rajesh.electrician@workerhub.com',
-      password: workerPassword,
+      email: 'rajesh@workerhub.com',
+      password: universalPassword,
       phone: '+91 98111 22334',
       role: 'worker',
       location: 'New Delhi',
@@ -58,8 +56,8 @@ async function seedDatabase({ autoClose = false } = {}) {
 
     const worker2 = await User.create({
       name: 'Mohit Verma',
-      email: 'mohit.plumber@workerhub.com',
-      password: workerPassword,
+      email: 'mohit@workerhub.com',
+      password: universalPassword,
       phone: '+91 98222 33445',
       role: 'worker',
       location: 'Noida',
@@ -74,8 +72,8 @@ async function seedDatabase({ autoClose = false } = {}) {
 
     const worker3 = await User.create({
       name: 'Anil Kumar',
-      email: 'anil.carpenter@workerhub.com',
-      password: workerPassword,
+      email: 'anil@workerhub.com',
+      password: universalPassword,
       phone: '+91 98333 44556',
       role: 'worker',
       location: 'Gurgaon',
@@ -90,8 +88,8 @@ async function seedDatabase({ autoClose = false } = {}) {
 
     const worker4 = await User.create({
       name: 'Suresh Gupta',
-      email: 'suresh.painter@workerhub.com',
-      password: workerPassword,
+      email: 'suresh@workerhub.com',
+      password: universalPassword,
       phone: '+91 98444 55667',
       role: 'worker',
       location: 'Ghaziabad',
@@ -100,14 +98,14 @@ async function seedDatabase({ autoClose = false } = {}) {
       experience: 4,
       hourlyRate: 280,
       bio: 'Interior and exterior emulsion painting, texture designs, waterproof damp proofing, and tile re-grouting.',
-      verificationStatus: 'Pending', // Pending admin verification
+      verificationStatus: 'Pending',
       isActive: true
     });
 
     const worker5 = await User.create({
       name: 'Vikram Singh',
-      email: 'vikram.technician@workerhub.com',
-      password: workerPassword,
+      email: 'vikram@workerhub.com',
+      password: universalPassword,
       phone: '+91 98555 66778',
       role: 'worker',
       location: 'New Delhi',
@@ -116,15 +114,15 @@ async function seedDatabase({ autoClose = false } = {}) {
       experience: 6,
       hourlyRate: 320,
       bio: 'Inverter AC diagnostics, PCB repairs, copper pipe soldering, and refrigerator compressor maintenance.',
-      verificationStatus: 'Pending', // Pending admin verification
+      verificationStatus: 'Pending',
       isActive: true
     });
 
     // 3. Customers
     const customer1 = await User.create({
-      name: 'Amit Sharma',
-      email: 'amit.sharma@gmail.com',
-      password: customerPassword,
+      name: 'Raj',
+      email: 'raj@gmail.com',
+      password: universalPassword,
       phone: '+91 97111 88990',
       role: 'customer',
       location: 'New Delhi',
@@ -133,8 +131,8 @@ async function seedDatabase({ autoClose = false } = {}) {
 
     const customer2 = await User.create({
       name: 'Priya Patel',
-      email: 'priya.patel@gmail.com',
-      password: customerPassword,
+      email: 'priya@gmail.com',
+      password: universalPassword,
       phone: '+91 97222 77889',
       role: 'customer',
       location: 'Noida',
@@ -143,8 +141,8 @@ async function seedDatabase({ autoClose = false } = {}) {
 
     const customer3 = await User.create({
       name: 'Rohit Kapoor',
-      email: 'rohit.kapoor@gmail.com',
-      password: customerPassword,
+      email: 'rohit@gmail.com',
+      password: universalPassword,
       phone: '+91 97333 66778',
       role: 'customer',
       location: 'Gurgaon',
@@ -229,8 +227,7 @@ async function seedDatabase({ autoClose = false } = {}) {
     });
 
     console.log('⭐ Creating verified ratings and reviews...');
-    // Rating 1
-    const rate1 = await Rating.create({
+    await Rating.create({
       customer: customer1._id,
       worker: worker1._id,
       job: req1._id,
@@ -238,8 +235,7 @@ async function seedDatabase({ autoClose = false } = {}) {
       review: 'Rajesh is an exceptional electrician! Punctual, brought professional diagnostic meters, and resolved the tripping issue cleanly in under 45 minutes. Highly recommended.'
     });
 
-    // Rating 2
-    const rate2 = await Rating.create({
+    await Rating.create({
       customer: customer2._id,
       worker: worker2._id,
       job: req2._id,
@@ -247,7 +243,6 @@ async function seedDatabase({ autoClose = false } = {}) {
       review: 'Mohit arrived on time and repaired the pipe leak efficiently. Did a neat job with minimal mess.'
     });
 
-    // Manually trigger recalculation to ensure worker stats are up to date
     await Rating.recalculateWorkerRating(worker1._id);
     await Rating.recalculateWorkerRating(worker2._id);
 
@@ -273,21 +268,22 @@ async function seedDatabase({ autoClose = false } = {}) {
     console.log('===========================================================');
     console.log('✅ Database seeded successfully!');
     console.log('===========================================================');
-    console.log('🔐 DEMO CREDENTIALS:');
+    console.log('🔐 ALL PASSWORDS: 123456');
+    console.log('-----------------------------------------------------------');
     console.log('👑 Admin:');
-    console.log('   Email:    admin@workerhub.com');
-    console.log('   Username: admin');
-    console.log('   Password: 123456');
+    console.log('   Email: admin@workerhub.com  (or just type "admin")');
     console.log('-----------------------------------------------------------');
     console.log('👷 Workers:');
-    console.log('   Rajesh (Electrician, Verified):   rajesh.electrician@workerhub.com / Worker@123');
-    console.log('   Mohit (Plumber, Verified):        mohit.plumber@workerhub.com / Worker@123');
-    console.log('   Suresh (Painter, Pending):        suresh.painter@workerhub.com / Worker@123');
+    console.log('   Rajesh (Electrician, Verified):  rajesh@workerhub.com');
+    console.log('   Mohit (Plumber, Verified):       mohit@workerhub.com');
+    console.log('   Anil (Carpenter, Verified):      anil@workerhub.com');
+    console.log('   Suresh (Painter, Pending):       suresh@workerhub.com');
+    console.log('   Vikram (AC Repair, Pending):     vikram@workerhub.com');
     console.log('-----------------------------------------------------------');
     console.log('🧑 Customers:');
-    console.log('   Amit Sharma:  amit.sharma@gmail.com / Customer@123');
-    console.log('   Priya Patel:  priya.patel@gmail.com / Customer@123');
-    console.log('   Rohit Kapoor: rohit.kapoor@gmail.com / Customer@123');
+    console.log('   Raj:          raj@gmail.com');
+    console.log('   Priya Patel:  priya@gmail.com');
+    console.log('   Rohit Kapoor: rohit@gmail.com');
     console.log('===========================================================');
 
     if (autoClose) {
