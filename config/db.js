@@ -12,9 +12,9 @@ async function connectDB() {
 
   try {
     if (uri && !process.env.FORCE_MEMORY_DB) {
-      // Connect to MongoDB Atlas or configured URI with 5s timeout
       await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 4000
+        serverSelectionTimeoutMS: 8000,
+        bufferCommands: false
       });
       isConnected = true;
       console.log(`[DB] Connected to MongoDB: ${mongoose.connection.host}`);
@@ -24,7 +24,6 @@ async function connectDB() {
     console.warn(`[DB] Could not connect to configured MongoDB URI (${err.message}).`);
   }
 
-  // Fallback to in-memory MongoDB for seamless zero-setup local dev/test
   if (process.env.NODE_ENV !== 'production') {
     try {
       console.log('[DB] Initializing in-memory MongoDB server for local execution...');

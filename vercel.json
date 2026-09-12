@@ -3,7 +3,8 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "includeFiles": "{views,public}/**"
+      "includeFiles": "{views,public,config,controllers,middleware,models,routes}/**",
+      "maxDuration": 30
     }
   },
   "rewrites": [

@@ -11,7 +11,6 @@ const notFoundHandler = (req, res, next) => {
   res.json({ success: false, message: 'Resource not found' });
 };
 
-// Global Server Error Handler
 const errorHandler = (err, req, res, next) => {
   console.error(`[Error] ${req.method} ${req.url}:`, err.stack || err.message);
 
